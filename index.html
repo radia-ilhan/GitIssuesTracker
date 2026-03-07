@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>JobsByRadia Dashboard</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+
+        <h1 class="title">JobsByRadia</h1>
+        <div class="dashboard">
+            <div class="box">
+                <p>All Jobs</p>
+                <h2 id="allCount">0</h2>
+            </div>
+
+            <div class="box">
+
+                <p>Interview</p>
+                
+                <h2 id="inter">0</h2>
+
+
+            </div>
+
+            <div class="box">
+                <p>Rejected</p>
+                <h2 id="reje">0</h2>
+
+
+            </div>
+        </div>
+
+
+        <div class="jobs-header">
+            <h3>Available Jobs</h3>
+            <p id="jobCount">0 Jobs</p>
+
+        </div>
+
+
+        <div class="tabs">
+            <button onclick="show('all', event)">All</button>
+
+    
+            <button onclick="show('interview', event)">Interview</button>
+            <button onclick="show('rejected', event)">Rejected</button>
+        </div>
+
+
+        <div id="jobContainer"></div>
+        <script src="script.js"></script>
+
+
+    </body>
+    
+</html>
