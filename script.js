@@ -20,8 +20,7 @@ function loadIssues() {
         // API wraps array inside "data" key
         allIssues = data.data
 
-        // count open and closed
-        // API uses "status" field (not "state")
+        // count open and closed using "status" field
         let openCount = 0
         let closedCount = 0
 
@@ -65,48 +64,70 @@ function displayCards(issueList) {
 
         let issue = issueList[i]
 
-        // API uses "status" not "state"
+        // card border color and status badge
         let cardClass = ""
-        let badgeHTML = ""
+        let statusBadge = ""
 
         if (issue.status == "open") {
             cardClass = "open-card"
-            badgeHTML = "<span class='open-badge'>Open</span>"
+            statusBadge = "<span class='open-badge'>Open</span>"
         } else {
             cardClass = "closed-card"
-            badgeHTML = "<span class='closed-badge'>Closed</span>"
+            statusBadge = "<span class='closed-badge'>Closed</span>"
         }
 
-        // API uses "description" not "body"
+        // description - API uses "description"
         let description = issue.description || "No description."
 
-        // API has "author" directly as a string, not inside user object
+        // author - API has "author" as plain string
         let authorName = issue.author || "Unknown"
 
-        // API labels is array of plain strings like ["bug", "help wanted"]
-        let labelName = "None"
+        // ALL labels as separate pills
+        // API labels is array of strings like ["bug", "help wanted"]
+        let labelsHTML = ""
         if (issue.labels && issue.labels.length > 0) {
-            labelName = issue.labels[0]
+            for (let j = 0; j < issue.labels.length; j++) {
+                labelsHTML = labelsHTML + "<span class='label-pill'>" + issue.labels[j] + "</span> "
+            }
+        } else {
+            labelsHTML = "<span class='card-info'>None</span>"
         }
 
-        let category = issue.category || "General"
+        // priority badge
+        let priorityHTML = ""
+        if (issue.priority) {
+            priorityHTML = "<span class='priority-pill priority-" + issue.priority + "'>" + issue.priority + "</span>"
+        }
 
-        // API uses "createdAt" not "created_at"
+        // date - API uses "createdAt"
         let createdDate = formatDate(issue.createdAt)
 
-        // API uses "id" as the identifier
+        // category
+        let category = issue.category || "General"
+
+        // issue id
         let issueId = issue.id
 
         let cardHTML = `
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                 <div class="issue-card ${cardClass}" onclick="openModal(${issueId})">
+
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="card-info">#${issueId}</span>
+                        ${priorityHTML}
+                    </div>
+
                     <h6>${issue.title}</h6>
                     <p class="card-description">${description}</p>
-                    <div class="mb-2">${badgeHTML}</div>
-                    <p class="card-info">📁 Category: ${category}</p>
-                    <p class="card-info">👤 Author: ${authorName}</p>
-                    <p class="card-info">🏷️ Label: ${labelName}</p>
+
+                    <div class="mb-2">${labelsHTML}</div>
+
+                    <div class="mb-1">${statusBadge}</div>
+
+                    <p class="card-info">📁 ${category}</p>
+                    <p class="card-info">👤 ${authorName}</p>
                     <p class="card-info">📅 ${createdDate}</p>
+
                 </div>
             </div>
         `
@@ -120,7 +141,6 @@ function displayCards(issueList) {
 
 function showTab(tabName) {
 
-    // reset all buttons
     document.getElementById("btnAll").className = "btn btn-outline-success me-1"
     document.getElementById("btnOpen").className = "btn btn-outline-success me-1"
     document.getElementById("btnClosed").className = "btn btn-outline-secondary"
@@ -173,7 +193,6 @@ function searchIssues() {
     })
     .then(function(data) {
         document.getElementById("spinner").style.display = "none"
-        // search also returns data inside "data" key
         let results = data.data || []
         displayCards(results)
     })
@@ -199,15 +218,14 @@ function openModal(issueId) {
     })
     .then(function(data) {
 
-        // single issue is also inside "data" key
         let issue = data.data || data
 
-        // labels are plain strings in array
+        // build all labels
         let allLabels = "None"
         if (issue.labels && issue.labels.length > 0) {
             allLabels = ""
             for (let i = 0; i < issue.labels.length; i++) {
-                allLabels = allLabels + issue.labels[i] + "  "
+                allLabels = allLabels + "<span class='label-pill'>" + issue.labels[i] + "</span> "
             }
         }
 
@@ -272,3 +290,4 @@ function logOut() {
     localStorage.removeItem("loggedIn")
     window.location.href = "index.html"
 }
+
