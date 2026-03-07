@@ -37,7 +37,7 @@ function loadIssues() {
         }
 
         console.log("Total issues loaded:", allIssues.length)
-        console.log("First issue sample:", allIssues[0])
+        document.getElementById("cardsContainer").innerHTML = "<pre>" + JSON.stringify(allIssues[0], null, 2) + "</pre>"
 
         // count open and closed
         let openCount = 0
@@ -313,4 +313,3 @@ function logOut() {
     localStorage.removeItem("loggedIn")
     window.location.href = "index.html"
 }
-
