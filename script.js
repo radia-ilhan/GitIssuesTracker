@@ -267,6 +267,14 @@ function openModal(issueId) {
                     <p class="detail-label">Created At</p>
                     <p class="detail-value">${formatDate(issue.createdAt)}</p>
                 </div>
+                <div class="col-md-6">
+                    <p class="detail-label">Updated At</p>
+                    <p class="detail-value">${formatDate(issue.updatedAt)}</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="detail-label">Assignee</p>
+                    <p class="detail-value">${issue.assignee || "None"}</p>
+                </div>
             </div>
         `
 
