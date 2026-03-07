@@ -1,12 +1,11 @@
-
+// this variable will store all issues we get from api
 let allIssues = []
 
-
+// load issues as soon as page is ready
 loadIssues()
 
 function loadIssues() {
 
-    
     document.getElementById("spinner").style.display = "block"
     document.getElementById("cardsContainer").innerHTML = ""
 
@@ -16,10 +15,31 @@ function loadIssues() {
     })
     .then(function(data) {
 
-        
         document.getElementById("spinner").style.display = "none"
 
-        allIssues = data
+        // API might return the array directly, OR wrapped inside a key
+        // so we check all possible formats here
+        if (Array.isArray(data)) {
+            allIssues = data
+        } else if (data.issues && Array.isArray(data.issues)) {
+            allIssues = data.issues
+        } else if (data.data && Array.isArray(data.data)) {
+            allIssues = data.data
+        } else {
+            // last resort - try to grab whatever array is inside
+            let keys = Object.keys(data)
+            for (let i = 0; i < keys.length; i++) {
+                if (Array.isArray(data[keys[i]])) {
+                    allIssues = data[keys[i]]
+                    break
+                }
+            }
+        }
+
+        console.log("Total issues loaded:", allIssues.length)
+        console.log("First issue sample:", allIssues[0])
+
+        // count open and closed
         let openCount = 0
         let closedCount = 0
 
@@ -34,17 +54,16 @@ function loadIssues() {
         document.getElementById("countAll").innerText = allIssues.length
         document.getElementById("countOpen").innerText = openCount
         document.getElementById("countClosed").innerText = closedCount
-
         document.getElementById("openTotal").innerText = openCount
         document.getElementById("closedTotal").innerText = closedCount
+
         displayCards(allIssues)
 
-    }
-)
+    })
     .catch(function(error) {
         document.getElementById("spinner").style.display = "none"
-        document.getElementById("cardsContainer").innerHTML = "<p class='text-danger'>Error loading data!</p>"
-        console.log(error)
+        document.getElementById("cardsContainer").innerHTML = "<p class='text-danger'>Error loading data! Check your internet connection.</p>"
+        console.log("Fetch error:", error)
     })
 
 }
@@ -64,7 +83,6 @@ function displayCards(issueList) {
 
         let issue = issueList[i]
 
-        
         let cardClass = ""
         let badgeHTML = ""
 
@@ -76,14 +94,13 @@ function displayCards(issueList) {
             badgeHTML = "<span class='closed-badge'>Closed</span>"
         }
 
-        
         let description = "No description."
         if (issue.body) {
             description = issue.body
         }
 
         let authorName = "Unknown"
-        if (issue.user) {
+        if (issue.user && issue.user.login) {
             authorName = issue.user.login
         }
 
@@ -97,10 +114,14 @@ function displayCards(issueList) {
             category = issue.category
         }
 
+        // use number if exists, otherwise id
+        let issueId = issue.number || issue.id || issue._id || i
+
         let createdDate = formatDate(issue.created_at)
+
         let cardHTML = `
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="issue-card ${cardClass}" onclick="openModal(${issue.number})">
+                <div class="issue-card ${cardClass}" onclick="openModal(${issueId})">
                     <h6>${issue.title}</h6>
                     <p class="card-description">${description}</p>
                     <div class="mb-2">${badgeHTML}</div>
@@ -123,8 +144,6 @@ function showTab(tabName) {
 
     document.getElementById("btnAll").className = "btn btn-outline-success me-1"
     document.getElementById("btnOpen").className = "btn btn-outline-success me-1"
-
-    
     document.getElementById("btnClosed").className = "btn btn-outline-secondary"
 
     if (tabName == "all") {
@@ -175,7 +194,18 @@ function searchIssues() {
     })
     .then(function(data) {
         document.getElementById("spinner").style.display = "none"
-        displayCards(data)
+
+        // same fix - handle wrapped response
+        let results = []
+        if (Array.isArray(data)) {
+            results = data
+        } else if (data.issues && Array.isArray(data.issues)) {
+            results = data.issues
+        } else if (data.data && Array.isArray(data.data)) {
+            results = data.data
+        }
+
+        displayCards(results)
     })
     .catch(function(error) {
         document.getElementById("spinner").style.display = "none"
@@ -197,10 +227,18 @@ function openModal(issueId) {
     .then(function(res) {
         return res.json()
     })
-    .then(function(issue) {
+    .then(function(data) {
+
+        // single issue might also be wrapped
+        let issue = data
+        if (data.issue) {
+            issue = data.issue
+        } else if (data.data) {
+            issue = data.data
+        }
 
         let author = "Unknown"
-        if (issue.user) {
+        if (issue.user && issue.user.login) {
             author = issue.user.login
         }
 
