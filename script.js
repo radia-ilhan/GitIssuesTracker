@@ -1,7 +1,6 @@
-// this variable will store all issues
 let allIssues = []
 
-// load issues when page opens
+
 loadIssues()
 
 function loadIssues() {
@@ -12,15 +11,12 @@ function loadIssues() {
     fetch("https://phi-lab-server.vercel.app/api/v1/lab/issues")
     .then(function(res) {
         return res.json()
+        
     })
     .then(function(data) {
 
         document.getElementById("spinner").style.display = "none"
-
-        // API wraps array inside "data" key
         allIssues = data.data
-
-        // count open and closed using "status" field
         let openCount = 0
         let closedCount = 0
 
@@ -35,6 +31,8 @@ function loadIssues() {
         document.getElementById("countAll").innerText = allIssues.length
         document.getElementById("countOpen").innerText = openCount
         document.getElementById("countClosed").innerText = closedCount
+
+        
         document.getElementById("openTotal").innerText = openCount
         document.getElementById("closedTotal").innerText = closedCount
 
@@ -64,48 +62,41 @@ function displayCards(issueList) {
 
         let issue = issueList[i]
 
-        // card border color and status badge
         let cardClass = ""
         let statusBadge = ""
 
         if (issue.status == "open") {
             cardClass = "open-card"
             statusBadge = "<span class='open-badge'>Open</span>"
-        } else {
+        } 
+        
+           else {
             cardClass = "closed-card"
             statusBadge = "<span class='closed-badge'>Closed</span>"
-        }
-
-        // description - API uses "description"
+        }        
         let description = issue.description || "No description."
-
-        // author - API has "author" as plain string
         let authorName = issue.author || "Unknown"
 
-        // ALL labels as separate pills
-        // API labels is array of strings like ["bug", "help wanted"]
+        
         let labelsHTML = ""
         if (issue.labels && issue.labels.length > 0) {
             for (let j = 0; j < issue.labels.length; j++) {
+                
                 labelsHTML = labelsHTML + "<span class='label-pill'>" + issue.labels[j] + "</span> "
             }
         } else {
             labelsHTML = "<span class='card-info'>None</span>"
         }
 
-        // priority badge
         let priorityHTML = ""
         if (issue.priority) {
             priorityHTML = "<span class='priority-pill priority-" + issue.priority + "'>" + issue.priority + "</span>"
         }
 
-        // date - API uses "createdAt"
         let createdDate = formatDate(issue.createdAt)
-
-        // category
         let category = issue.category || "General"
 
-        // issue id
+        
         let issueId = issue.id
 
         let cardHTML = `
@@ -298,4 +289,5 @@ function logOut() {
     localStorage.removeItem("loggedIn")
     window.location.href = "index.html"
 }
+
 
