@@ -2,18 +2,7 @@
 let allIssues = []
 
 
-window.onload = function() {
-
-   
-    if (localStorage.getItem("loggedIn") != "true") {
-        window.location.href = "index.html"
-        return
-    }
-
-    
-    loadIssues()
-
-}
+loadIssues()
 
 function loadIssues() {
 
@@ -30,10 +19,7 @@ function loadIssues() {
         
         document.getElementById("spinner").style.display = "none"
 
-        
         allIssues = data
-
-        
         let openCount = 0
         let closedCount = 0
 
@@ -45,19 +31,16 @@ function loadIssues() {
             }
         }
 
-        
         document.getElementById("countAll").innerText = allIssues.length
         document.getElementById("countOpen").innerText = openCount
         document.getElementById("countClosed").innerText = closedCount
 
-        
         document.getElementById("openTotal").innerText = openCount
         document.getElementById("closedTotal").innerText = closedCount
-
-        
         displayCards(allIssues)
 
-    })
+    }
+)
     .catch(function(error) {
         document.getElementById("spinner").style.display = "none"
         document.getElementById("cardsContainer").innerHTML = "<p class='text-danger'>Error loading data!</p>"
@@ -99,28 +82,22 @@ function displayCards(issueList) {
             description = issue.body
         }
 
-        
         let authorName = "Unknown"
         if (issue.user) {
             authorName = issue.user.login
         }
 
-        
         let labelName = "None"
         if (issue.labels && issue.labels.length > 0) {
             labelName = issue.labels[0].name
         }
 
-        
         let category = "General"
         if (issue.category) {
             category = issue.category
         }
 
-        
         let createdDate = formatDate(issue.created_at)
-
-        
         let cardHTML = `
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                 <div class="issue-card ${cardClass}" onclick="openModal(${issue.number})">
@@ -144,22 +121,19 @@ function displayCards(issueList) {
 
 function showTab(tabName) {
 
-    
     document.getElementById("btnAll").className = "btn btn-outline-success me-1"
     document.getElementById("btnOpen").className = "btn btn-outline-success me-1"
+
+    
     document.getElementById("btnClosed").className = "btn btn-outline-secondary"
 
     if (tabName == "all") {
-        
         document.getElementById("btnAll").className = "btn btn-success me-1"
         displayCards(allIssues)
 
     } else if (tabName == "open") {
-        
-        
         document.getElementById("btnOpen").className = "btn btn-success me-1"
 
-        
         let openList = []
         for (let i = 0; i < allIssues.length; i++) {
             if (allIssues[i].state == "open") {
@@ -169,10 +143,8 @@ function showTab(tabName) {
         displayCards(openList)
 
     } else if (tabName == "closed") {
-        
         document.getElementById("btnClosed").className = "btn btn-secondary"
 
-        
         let closedList = []
         for (let i = 0; i < allIssues.length; i++) {
             if (allIssues[i].state == "closed") {
@@ -189,13 +161,11 @@ function searchIssues() {
 
     let searchText = document.getElementById("searchInput").value
 
-    
     if (searchText == "") {
         displayCards(allIssues)
         return
     }
 
-    
     document.getElementById("spinner").style.display = "block"
     document.getElementById("cardsContainer").innerHTML = ""
 
@@ -217,27 +187,23 @@ function searchIssues() {
 
 function openModal(issueId) {
 
-    
     document.getElementById("modalHeading").innerText = "Loading..."
     document.getElementById("modalContent").innerHTML = "<div class='text-center'><div class='spinner-border'></div></div>"
 
     let modal = new bootstrap.Modal(document.getElementById("detailModal"))
     modal.show()
 
-    
     fetch("https://phi-lab-server.vercel.app/api/v1/lab/issue/" + issueId)
     .then(function(res) {
         return res.json()
     })
     .then(function(issue) {
 
-        
         let author = "Unknown"
         if (issue.user) {
             author = issue.user.login
         }
 
-        
         let labels = "None"
         if (issue.labels && issue.labels.length > 0) {
             labels = ""
@@ -246,7 +212,6 @@ function openModal(issueId) {
             }
         }
 
-        
         let statusBadge = ""
         if (issue.state == "open") {
             statusBadge = "<span class='open-badge'>Open</span>"
@@ -306,8 +271,8 @@ function formatDate(dateString) {
 }
 
 
-// logout function
 function logOut() {
     localStorage.removeItem("loggedIn")
     window.location.href = "index.html"
 }
+
