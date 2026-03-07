@@ -1,3 +1,5 @@
+/* ===== login page ===== */
+
 body {
     background-color: #f5f5f5;
 }
@@ -20,6 +22,8 @@ body {
 }
 
 
+/* ===== dashboard page ===== */
+
 .tab-section {
     background-color: white;
     padding: 15px 20px;
@@ -27,7 +31,7 @@ body {
     box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 
-
+/* the white box card */
 .issue-card {
     background-color: white;
     border-radius: 8px;
@@ -35,20 +39,21 @@ body {
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     height: 100%;
-
     border-top: 4px solid #ccc;
 }
 
 .issue-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+/* green top border for open issues */
 .open-card {
-    border-top: 4px solid #28a745;
+    border-top: 4px solid #28a745 !important;
 }
 
+/* purple top border for closed issues */
 .closed-card {
-    border-top: 4px solid #6f42c1;
+    border-top: 4px solid #6f42c1 !important;
 }
 
 .issue-card h6 {
@@ -61,7 +66,6 @@ body {
     font-size: 13px;
     color: #666;
     margin-bottom: 10px;
-
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -74,31 +78,35 @@ body {
     margin-bottom: 3px;
 }
 
+/* open badge - green */
 .open-badge {
     background-color: #28a745;
     color: white;
-    padding: 2px 8px;
+    padding: 2px 10px;
     border-radius: 12px;
     font-size: 12px;
 }
 
+/* closed badge - purple */
 .closed-badge {
     background-color: #6f42c1;
     color: white;
-    padding: 2px 8px;
+    padding: 2px 10px;
     border-radius: 12px;
     font-size: 12px;
 }
 
-
+/* modal */
 .detail-label {
     font-size: 12px;
     font-weight: bold;
     color: #777;
     margin-bottom: 2px;
+    text-transform: uppercase;
 }
 
 .detail-value {
     font-size: 14px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
+
