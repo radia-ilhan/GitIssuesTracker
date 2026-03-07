@@ -1,7 +1,7 @@
-// this variable will store all issues we get from api
+// this variable will store all issues
 let allIssues = []
 
-// load issues as soon as page is ready
+// load issues when page opens
 loadIssues()
 
 function loadIssues() {
@@ -17,34 +17,16 @@ function loadIssues() {
 
         document.getElementById("spinner").style.display = "none"
 
-        // API might return the array directly, OR wrapped inside a key
-        // so we check all possible formats here
-        if (Array.isArray(data)) {
-            allIssues = data
-        } else if (data.issues && Array.isArray(data.issues)) {
-            allIssues = data.issues
-        } else if (data.data && Array.isArray(data.data)) {
-            allIssues = data.data
-        } else {
-            // last resort - try to grab whatever array is inside
-            let keys = Object.keys(data)
-            for (let i = 0; i < keys.length; i++) {
-                if (Array.isArray(data[keys[i]])) {
-                    allIssues = data[keys[i]]
-                    break
-                }
-            }
-        }
-
-        console.log("Total issues loaded:", allIssues.length)
-        document.getElementById("cardsContainer").innerHTML = "<pre>" + JSON.stringify(allIssues[0], null, 2) + "</pre>"
+        // API wraps array inside "data" key
+        allIssues = data.data
 
         // count open and closed
+        // API uses "status" field (not "state")
         let openCount = 0
         let closedCount = 0
 
         for (let i = 0; i < allIssues.length; i++) {
-            if (allIssues[i].state == "open") {
+            if (allIssues[i].status == "open") {
                 openCount = openCount + 1
             } else {
                 closedCount = closedCount + 1
@@ -62,7 +44,7 @@ function loadIssues() {
     })
     .catch(function(error) {
         document.getElementById("spinner").style.display = "none"
-        document.getElementById("cardsContainer").innerHTML = "<p class='text-danger'>Error loading data! Check your internet connection.</p>"
+        document.getElementById("cardsContainer").innerHTML = "<p class='text-danger'>Error loading data!</p>"
         console.log("Fetch error:", error)
     })
 
@@ -83,10 +65,11 @@ function displayCards(issueList) {
 
         let issue = issueList[i]
 
+        // API uses "status" not "state"
         let cardClass = ""
         let badgeHTML = ""
 
-        if (issue.state == "open") {
+        if (issue.status == "open") {
             cardClass = "open-card"
             badgeHTML = "<span class='open-badge'>Open</span>"
         } else {
@@ -94,30 +77,25 @@ function displayCards(issueList) {
             badgeHTML = "<span class='closed-badge'>Closed</span>"
         }
 
-        let description = "No description."
-        if (issue.body) {
-            description = issue.body
-        }
+        // API uses "description" not "body"
+        let description = issue.description || "No description."
 
-        let authorName = "Unknown"
-        if (issue.user && issue.user.login) {
-            authorName = issue.user.login
-        }
+        // API has "author" directly as a string, not inside user object
+        let authorName = issue.author || "Unknown"
 
+        // API labels is array of plain strings like ["bug", "help wanted"]
         let labelName = "None"
         if (issue.labels && issue.labels.length > 0) {
-            labelName = issue.labels[0].name
+            labelName = issue.labels[0]
         }
 
-        let category = "General"
-        if (issue.category) {
-            category = issue.category
-        }
+        let category = issue.category || "General"
 
-        // use number if exists, otherwise id
-        let issueId = issue.number || issue.id || issue._id || i
+        // API uses "createdAt" not "created_at"
+        let createdDate = formatDate(issue.createdAt)
 
-        let createdDate = formatDate(issue.created_at)
+        // API uses "id" as the identifier
+        let issueId = issue.id
 
         let cardHTML = `
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
@@ -142,6 +120,7 @@ function displayCards(issueList) {
 
 function showTab(tabName) {
 
+    // reset all buttons
     document.getElementById("btnAll").className = "btn btn-outline-success me-1"
     document.getElementById("btnOpen").className = "btn btn-outline-success me-1"
     document.getElementById("btnClosed").className = "btn btn-outline-secondary"
@@ -155,7 +134,7 @@ function showTab(tabName) {
 
         let openList = []
         for (let i = 0; i < allIssues.length; i++) {
-            if (allIssues[i].state == "open") {
+            if (allIssues[i].status == "open") {
                 openList.push(allIssues[i])
             }
         }
@@ -166,7 +145,7 @@ function showTab(tabName) {
 
         let closedList = []
         for (let i = 0; i < allIssues.length; i++) {
-            if (allIssues[i].state == "closed") {
+            if (allIssues[i].status == "closed") {
                 closedList.push(allIssues[i])
             }
         }
@@ -194,17 +173,8 @@ function searchIssues() {
     })
     .then(function(data) {
         document.getElementById("spinner").style.display = "none"
-
-        // same fix - handle wrapped response
-        let results = []
-        if (Array.isArray(data)) {
-            results = data
-        } else if (data.issues && Array.isArray(data.issues)) {
-            results = data.issues
-        } else if (data.data && Array.isArray(data.data)) {
-            results = data.data
-        }
-
+        // search also returns data inside "data" key
+        let results = data.data || []
         displayCards(results)
     })
     .catch(function(error) {
@@ -229,29 +199,20 @@ function openModal(issueId) {
     })
     .then(function(data) {
 
-        // single issue might also be wrapped
-        let issue = data
-        if (data.issue) {
-            issue = data.issue
-        } else if (data.data) {
-            issue = data.data
-        }
+        // single issue is also inside "data" key
+        let issue = data.data || data
 
-        let author = "Unknown"
-        if (issue.user && issue.user.login) {
-            author = issue.user.login
-        }
-
-        let labels = "None"
+        // labels are plain strings in array
+        let allLabels = "None"
         if (issue.labels && issue.labels.length > 0) {
-            labels = ""
+            allLabels = ""
             for (let i = 0; i < issue.labels.length; i++) {
-                labels = labels + issue.labels[i].name + " "
+                allLabels = allLabels + issue.labels[i] + "  "
             }
         }
 
         let statusBadge = ""
-        if (issue.state == "open") {
+        if (issue.status == "open") {
             statusBadge = "<span class='open-badge'>Open</span>"
         } else {
             statusBadge = "<span class='closed-badge'>Closed</span>"
@@ -261,7 +222,7 @@ function openModal(issueId) {
 
         document.getElementById("modalContent").innerHTML = `
             <p class="detail-label">Description</p>
-            <p class="detail-value">${issue.body || "No description available."}</p>
+            <p class="detail-value">${issue.description || "No description available."}</p>
 
             <div class="row">
                 <div class="col-md-6">
@@ -274,7 +235,7 @@ function openModal(issueId) {
                 </div>
                 <div class="col-md-6">
                     <p class="detail-label">Author</p>
-                    <p class="detail-value">${author}</p>
+                    <p class="detail-value">${issue.author || "Unknown"}</p>
                 </div>
                 <div class="col-md-6">
                     <p class="detail-label">Priority</p>
@@ -282,11 +243,11 @@ function openModal(issueId) {
                 </div>
                 <div class="col-md-6">
                     <p class="detail-label">Labels</p>
-                    <p class="detail-value">${labels}</p>
+                    <p class="detail-value">${allLabels}</p>
                 </div>
                 <div class="col-md-6">
                     <p class="detail-label">Created At</p>
-                    <p class="detail-value">${formatDate(issue.created_at)}</p>
+                    <p class="detail-value">${formatDate(issue.createdAt)}</p>
                 </div>
             </div>
         `
@@ -301,9 +262,7 @@ function openModal(issueId) {
 
 
 function formatDate(dateString) {
-    if (!dateString) {
-        return "N/A"
-    }
+    if (!dateString) return "N/A"
     let d = new Date(dateString)
     return d.toDateString()
 }
