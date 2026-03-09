@@ -1,364 +1,470 @@
 var allIssues = []
 
+//page load hoile issues anbo
 loadIssues()
 
 function loadIssues() {
 
-	document.getElementById("spinner").style.display = "block"
-	document.getElementById("cardsContainer").innerHTML = ""
+    //spinner show 
+    document.getElementById("spinner").style.display = "block"
 
-	fetch("https://phi-lab-server.vercel.app/api/v1/lab/issues")
-	.then(function(res) {
-		return res.json()
-	})
-	.then(function(data) {
+    //aage cards clear 
+    document.getElementById("cardsContainer").innerHTML = ""
 
-		document.getElementById("spinner").style.display = "none"
+    //api theke issues 
+    fetch("https://phi-lab-server.vercel.app/api/v1/lab/issues")
+    .then(function(res) {
+        return res.json()
+    })
+    .then(function(data) {
 
-		allIssues = data.data
+        //data ashle spinner band 
+        document.getElementById("spinner").style.display = "none"
 
-		// count open and closed separately
-		var openCount = 0
-		var closedCount = 0
-		var i = 0
+        
+        allIssues = data.data
 
-		while (i < allIssues.length) {
-			if (allIssues[i].status == "open") {
-				openCount = openCount + 1
-			} else {
-				closedCount = closedCount + 1
-			}
-			i++
-		}
+        
+        var openCount = 0
+        var closedCount = 0
+        var i = 0
 
-		document.getElementById("countAll").innerText = allIssues.length
-		document.getElementById("countOpen").innerText = openCount
-		document.getElementById("countClosed").innerText = closedCount
-		document.getElementById("openTotal").innerText = openCount
-		document.getElementById("closedTotal").innerText = closedCount
+        while (i < allIssues.length) {
+            if (allIssues[i].status == "open") {
+                openCount = openCount + 1
+            } else {
+                closedCount = closedCount + 1
+            }
+            i++
+        }
 
-		displayCards(allIssues)
+        //count gulo html e dekhabo
+        document.getElementById("countAll").innerText = allIssues.length
+        document.getElementById("countOpen").innerText = openCount
 
-	})
-	.catch(function(err) {
-		document.getElementById("spinner").style.display = "none"
-		document.getElementById("cardsContainer").innerHTML = "<p class='text-danger'>Error loading data!</p>"
-		console.log(err)
-	})
+        document.getElementById("countClosed").innerText = closedCount
+
+        document.getElementById("openTotal").innerText = openCount
+
+        document.getElementById("closedTotal").innerText = closedCount
+
+        
+        displayCards(allIssues)
+
+    })
+    .catch(function(err) {
+
+        //error hoile spinner band r message dekhabo
+
+        document.getElementById("spinner").style.display = "none"
+
+        document.getElementById("cardsContainer").innerHTML = "<p class='text-danger'>Error loading data!</p>"
+        console.log(err)
+    })
 
 }
 
 
 function displayCards(issueList) {
 
-	var container = document.getElementById("cardsContainer")
-	container.innerHTML = ""
+    //container ta nibo
+    var box = document.getElementById("cardsContainer")
 
-	if (issueList.length == 0) {
-		container.innerHTML = "<p class='text-muted text-center mt-3'>No issues to show.</p>"
-		return
-	}
+    //age purano cards clear
+    box.innerHTML = ""
 
-	var i = 0
+    //kono issue na thakle message dekhai
+    if (issueList.length == 0) {
 
-	while (i < issueList.length) {
+        box.innerHTML = "<p class='text-muted text-center mt-3'>No issues to show.</p>"
+        return
+    }
 
-		var issue = issueList[i]
+    var i = 0
 
-		// check status and pick the right class and badge
-		var cardClass = ""
-		var statusBadge = ""
+    while (i < issueList.length) {
 
-		if (issue.status == "open") {
-			cardClass = "open-card"
-			statusBadge = "<span class='open-badge'>Open</span>"
-		}
-		if (issue.status == "closed") {
-			cardClass = "closed-card"
-			statusBadge = "<span class='closed-badge'>Closed</span>"
-		}
+        var issue = issueList[i]
 
-		// description
-		var description = "No description."
-		if (issue.description) {
-			description = issue.description
-		}
+        //status check kore class r badge thik korbo
+        var cc = ""
+        var sb = ""
 
-		// author
-		var authorName = "Unknown"
-		if(issue.author) {
-			authorName = issue.author
-		}
+        if (issue.status == "open") {
+            cc = "open-card"
 
-		// labels - loop through them if any
-		var labelsHTML = ""
-		if (issue.labels) {
-			var j = 0
-			while (j < issue.labels.length) {
-				labelsHTML = labelsHTML + "<span class='label-pill'>" + issue.labels[j] + "</span> "
-				j++
-			}
-		} else {
-			labelsHTML = "<span class='card-info'>None</span>"
-		}
+            sb = "<span class='open-badge'>Open</span>"
 
-		// priority badge
-		var priorityHTML = ""
-		if (issue.priority) {
-			priorityHTML = "<span class='priority-pill priority-" + issue.priority + "'>" + issue.priority + "</span>"
-		}
+        }
+        if (issue.status == "closed") {
+            cc = "closed-card"
+            sb = "<span class='closed-badge'>Closed</span>"
+        }
 
-		var createdDate = formatDate(issue.createdAt)
+        
+        var desc = "No description."
+        if (issue.description) {
+            desc = issue.description
+        }
 
-		// category
-		var category = "General"
-		if (issue.category) {
-			category = issue.category
-		}
+        //author nibo
+        var auth = "Unknown"
 
-		var issueId = issue.id
+        if (issue.author) {
 
-		// build the card html piece by piece
-		var cardHTML = ""
-		cardHTML = cardHTML + "<div class='col-lg-3 col-md-4 col-sm-6 mb-4'>"
-		cardHTML = cardHTML + "<div class='issue-card " + cardClass + "' onclick='openModal(" + issueId + ")'>"
-		cardHTML = cardHTML + "<div class='d-flex justify-content-between align-items-start mb-2'>"
-		cardHTML = cardHTML + "<span class='card-info'>#" + issueId + "</span>"
-		cardHTML = cardHTML + priorityHTML
-		cardHTML = cardHTML + "</div>"
-		cardHTML = cardHTML + "<h6>" + issue.title + "</h6>"
-		cardHTML = cardHTML + "<p class='card-description'>" + description + "</p>"
-		cardHTML = cardHTML + "<div class='mb-2'>" + labelsHTML + "</div>"
-		cardHTML = cardHTML + "<div class='mb-1'>" + statusBadge + "</div>"
-		cardHTML = cardHTML + "<p class='card-info'>" + category + "</p>"
-		cardHTML = cardHTML + "<p class='card-info'>" + authorName + "</p>"
-		cardHTML = cardHTML + "<p class='card-info'>" + createdDate + "</p>"
-		cardHTML = cardHTML + "</div>"
-		cardHTML = cardHTML + "</div>"
+            auth = issue.author
+        }
 
-		container.innerHTML = container.innerHTML + cardHTML
+        //labels loop 
+        var lhtml = ""
 
-		i++
-	}
+        if (issue.labels) {
+            var j = 0
+
+            while (j < issue.labels.length) {
+
+                lhtml = lhtml + "<span class='label-pill'>" + issue.labels[j] + "</span> "
+                
+                j++
+            }
+        } else {
+            lhtml = "<span class='card-info'>None</span>"
+        }
+
+    
+        var phtml = ""
+        if (issue.priority) {
+            
+            
+            phtml = "<span class='priority-pill priority-" + issue.priority + "'>" + issue.priority + "</span>"
+        }
+
+        //date format kori
+        var cdate = formatDate(issue.createdAt)
+
+        //category nibo
+        
+        
+        var cat = "General"
+        if (issue.category) {
+            
+            cat = issue.category
+        }
+
+        var id = issue.id
+
+        //card 
+        var card = ""
+        card = card + "<div class='col-lg-3 col-md-4 col-sm-6 mb-4'>"
+        card = card + "<div class='issue-card " + cc + "' onclick='openModal(" + id + ")'>"
+        
+        card = card + "<div class='d-flex justify-content-between align-items-start mb-2'>"
+        
+        card = card + "<span class='card-info'>#" + id + "</span>"
+        card = card + phtml
+        card = card + "</div>"
+        
+        card = card + "<h6>" + issue.title + "</h6>"
+        
+        card = card + "<p class='card-description'>" + desc + "</p>"
+        
+        
+        card = card + "<div class='mb-2'>" + lhtml + "</div>"
+        card = card + "<div class='mb-1'>" + sb + "</div>"
+        card = card + "<p class='card-info'>" + cat + "</p>"
+        card = card + "<p class='card-info'>" + auth + "</p>"
+        
+        card = card + "<p class='card-info'>" + cdate + "</p>"
+        card = card + "</div>"
+
+        card = card + "</div>"
+
+        //container e add 
+        box.innerHTML = box.innerHTML + card
+
+        i++
+    }
 
 }
 
 
 function showTab(tabName) {
 
-	// reset button styles first
-	document.getElementById("btnAll").className = "btn btn-outline-success me-1"
-	document.getElementById("btnOpen").className = "btn btn-outline-success me-1"
-	document.getElementById("btnClosed").className = "btn btn-outline-secondary"
+    //age sob button reset 
+    document.getElementById("btnAll").className = "btn btn-outline-success me-1"
+    
+    document.getElementById("btnOpen").className = "btn btn-outline-success me-1"
+    document.getElementById("btnClosed").className = "btn btn-outline-secondary"
 
-	if (tabName == "all") {
+    if (tabName == "all") {
 
-		document.getElementById("btnAll").className = "btn btn-success me-1"
-		displayCards(allIssues)
+        //all button active korbo
+        
+        document.getElementById("btnAll").className = "btn btn-success me-1"
+        
+        displayCards(allIssues)
 
-	} else if (tabName == "open") {
+    } else if (tabName == "open") {
 
-		document.getElementById("btnOpen").className = "btn btn-success me-1"
+        //open button active korbo
+        document.getElementById("btnOpen").className = "btn btn-success me-1"
 
-		var openList = []
-		var i = 0
+        //open issues filter korbo
+        
+        var oList = []
+        var i = 0
 
-		while (i < allIssues.length) {
-			if (allIssues[i].status == "open") {
-				openList.push(allIssues[i])
-			}
-			i++
-		}
+        while (i < allIssues.length) {
+            
+            if (allIssues[i].status == "open") {
+                
+                oList.push(allIssues[i])
+            
+            }
+            i++
+        }
 
-		displayCards(openList)
+        displayCards(oList)
 
-	} else if (tabName == "closed") {
+    } else if (tabName == "closed") {
 
-		document.getElementById("btnClosed").className = "btn btn-secondary"
+        //closed button active korbo
+        
+        document.getElementById("btnClosed").className = "btn btn-secondary"
 
-		var closedList = []
-		var i = 0
+        //closed issues filter korbo
+        var cList = []
+        
+        var i = 0
 
-		while (i < allIssues.length) {
-			if (allIssues[i].status == "closed") {
-				closedList.push(allIssues[i])
-			}
-			i++
-		}
+        while (i < allIssues.length) {
+            
+            if (allIssues[i].status == "closed") {
+                
+                cList.push(allIssues[i])
+            }
+            i++
 
-		displayCards(closedList)
+        }
 
-	}
+        displayCards(cList)
+
+    }
 
 }
 
 
 function searchIssues() {
 
-	var searchText = document.getElementById("searchInput").value
+    //search input theke text nibo
+    var txt = document.getElementById("searchInput").value
 
-	// if search is empty just show everything again
-	if (searchText == "") {
-		displayCards(allIssues)
-		return
-	}
+    //empty hole sob dekhabo
+    
+    if (txt == "") {
+        
+        displayCards(allIssues)
+        return
+    }
 
-	document.getElementById("spinner").style.display = "block"
-	document.getElementById("cardsContainer").innerHTML = ""
+    //spinner show kori
+    
+    document.getElementById("spinner").style.display = "block"
+    
+    document.getElementById("cardsContainer").innerHTML = ""
 
-	var url = "https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=" + searchText
+    //search api call korbo
+    var url = "https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=" + txt
 
-	fetch(url)
-	.then(function(res) {
-		return res.json()
-	})
-	.then(function(data) {
+    fetch(url)
+    .then(function(res) {
+        
+        
+        return res.json()
+    })
+    .then(function(data) {
 
-		document.getElementById("spinner").style.display = "none"
+        //spinner band
+        document.getElementById("spinner").style.display = "none"
 
-		var results = []
+        var res = []
 
-		if (data.data) {
-			results = data.data
-		}
+        if (data.data) {
+            res = data.data
 
-		displayCards(results)
+        }
 
-	})
-	.catch(function(err) {
-		document.getElementById("spinner").style.display = "none"
-		console.log("search error", err)
-	})
+        
+        displayCards(res)
+
+    })
+    .catch(function(err) {
+        document.getElementById("spinner").style.display = "none"
+        console.log("search error", err)
+    })
 
 }
 
 
 function openModal(issueId) {
 
-	document.getElementById("modalHeading").innerText = "Loading..."
-	document.getElementById("modalContent").innerHTML = "<div class='text-center'><div class='spinner-border'></div></div>"
+    //modal open howar age loading dekhabo
+    document.getElementById("modalHeading").innerText = "Loading..."
+    document.getElementById("modalContent").innerHTML = "<div class='text-center'><div class='spinner-border'></div></div>"
 
-	var modal = new bootstrap.Modal(document.getElementById("detailModal"))
-	modal.show()
+    //modal show korbo
+    var m = new bootstrap.Modal(document.getElementById("detailModal"))
+    m.show()
 
-	fetch("https://phi-lab-server.vercel.app/api/v1/lab/issue/" + issueId)
-	.then(function(res) {
-		return res.json()
-	})
-	.then(function(data) {
+    //api theke single issue anbo
+    fetch("https://phi-lab-server.vercel.app/api/v1/lab/issue/" + issueId)
 
-		var issue = data.data
-		if (!issue) {
-			issue = data
-		}
 
-		// labels
-		var labelsHTML = ""
-		if (issue.labels != null && issue.labels.length > 0) {
-			var i = 0
-			while (i < issue.labels.length) {
-				labelsHTML = labelsHTML + "<span class='label-pill modal-label-pill'>🐛 " + issue.labels[i] + "</span> "
-				i++
-			}
-		} else {
-			labelsHTML = "<span class='text-muted'>None</span>"
-		}
+    .then(function(res) {
+        return res.json()
+        
+    })
+    .then(function(data) {
 
-		// status badge
-		var statusBadge = ""
-		if (issue.status == "open") {
-			statusBadge = "<span class='modal-open-badge'>opened</span>"
-		}
-		if (issue.status == "closed") {
-			statusBadge = "<span class='modal-closed-badge'>closed</span>"
-		}
+        var issue = data.data
+        if (!issue) {
+            issue = data
+        }
 
-		var priority = "N/A"
-		if (issue.priority != null && issue.priority != "") {
-			priority = issue.priority
-		}
+        //labels banabo
+        var lhtml = ""
+        if (issue.labels != null && issue.labels.length > 0) {
 
-		var category = "N/A"
-		if (issue.category != null && issue.category != "") {
-			category = issue.category
-		}
+            var i = 0
 
-		var author = "Unknown"
-		if (issue.author != null && issue.author != "") {
-			author = issue.author
-		}
+            while (i < issue.labels.length) {
 
-		var assignee = "N/A"
-		if (issue.assignee != null && issue.assignee != "") {
-			assignee = issue.assignee
-		}
 
-		var desc = "No description available."
-		if (issue.description != null && issue.description != "") {
-			desc = issue.description
-		}
+                lhtml = lhtml + "<span class='label-pill modal-label-pill'>" + issue.labels[i] + "</span> "
+                i++
+            }
+        } else {
+            lhtml = "<span class='text-muted'>None</span>"
+        }
 
-		document.getElementById("modalHeading").innerText = issue.title
+        //status badge thik korbo
+        var sb = ""
+        if (issue.status == "open") {
+            sb = "<span class='modal-open-badge'>opened</span>"
 
-		// build modal content to match the design
-		var html = ""
 
-		// top row: status badge + opened by info
-		html = html + "<div class='modal-top-row'>"
-		html = html + statusBadge
-		html = html + "<span class='modal-opened-info'>• Opened by " + author + " • " + formatDate(issue.createdAt) + "</span>"
-		html = html + "</div>"
+        }
+        if (issue.status == "closed") {
 
-		// labels row
-		html = html + "<div class='modal-labels-row'>"
-		html = html + labelsHTML
-		html = html + "</div>"
+            sb = "<span class='modal-closed-badge'>closed</span>"
+        }
 
-		// description
-		html = html + "<p class='modal-desc'>" + desc + "</p>"
+        //priority nibo
+        var pri = "N/A"
+        if (issue.priority != null && issue.priority != "") {
+            pri = issue.priority
+        }
 
-		// bottom info box - assignee and priority side by side
-		html = html + "<div class='modal-info-box'>"
+        //category nibo
+        var cat = "N/A"
+        if (issue.category != null && issue.category != "") {
+            cat = issue.category
+        }
 
-		html = html + "<div class='modal-info-item'>"
-		html = html + "<span class='modal-info-label'>Assignee:</span>"
-		html = html + "<p class='modal-info-value'>" + assignee + "</p>"
-		html = html + "</div>"
+        //author nibo
+        var auth = "Unknown"
+        if (issue.author != null && issue.author != "") {
+            auth = issue.author
+        }
 
-		html = html + "<div class='modal-info-item'>"
-		html = html + "<span class='modal-info-label'>Priority:</span>"
-		html = html + "<p><span class='priority-pill priority-" + priority + "'>" + priority + "</span></p>"
-		html = html + "</div>"
+        //assignee nibo
+        var asgn = "N/A"
+        if (issue.assignee != null && issue.assignee != "") {
+            asgn = issue.assignee
+        }
 
-		html = html + "</div>"
+        //description nibo
+        var desc = "No description available."
+        if (issue.description != null && issue.description != "") {
+            desc = issue.description
+        }
 
-		// extra info below box
-		html = html + "<div class='modal-extra-info'>"
-		html = html + "<span>📁 " + category + "</span>"
-		html = html + "<span>Updated: " + formatDate(issue.updatedAt) + "</span>"
-		html = html + "</div>"
+        //modal heading set korbo
+        document.getElementById("modalHeading").innerText = issue.title
 
-		document.getElementById("modalContent").innerHTML = html
+        //modal content banabo
+        var html = ""
 
-	})
-	.catch(function(err) {
-		document.getElementById("modalContent").innerHTML = "<p class='text-danger'>Could not load issue details.</p>"
-		console.log(err)
-	})
+        //status badge r author dekhabo
+        html = html + "<div class='modal-top-row'>"
+        html = html + sb
+        html = html + "<span class='modal-opened-info'>• Opened by " + auth + " • " + formatDate(issue.createdAt) + "</span>"
+        
+        html = html + "</div>"
+
+        //labels dekhabo
+        html = html + "<div class='modal-labels-row'>"
+        
+        html = html + lhtml
+        html = html + "</div>"
+
+        //description dekhabo
+        html = html + "<p class='modal-desc'>" + desc + "</p>"
+
+        //assignee r priority box dekhabo
+        html = html + "<div class='modal-info-box'>"
+
+        html = html + "<div class='modal-info-item'>"
+        html = html + "<span class='modal-info-label'>Assignee:</span>"
+        html = html + "<p class='modal-info-value'>" + asgn + "</p>"
+        html = html + "</div>"
+
+        html = html + "<div class='modal-info-item'>"
+        html = html + "<span class='modal-info-label'>Priority:</span>"
+        
+        html = html + "<p><span class='priority-pill priority-" + pri + "'>" + pri + "</span></p>"
+        html = html + "</div>"
+
+        html = html + "</div>"
+
+        //category r updated date dekhabo
+        html = html + "<div class='modal-extra-info'>"
+        
+        html = html + "<span>" + cat + "</span>"
+        html = html + "<span>Updated: " + formatDate(issue.updatedAt) + "</span>"
+        html = html + "</div>"
+
+        document.getElementById("modalContent").innerHTML = html
+
+    })
+    .catch(function(err) {
+        
+        document.getElementById("modalContent").innerHTML = "<p class='text-danger'>Could not load issue details.</p>"
+        console.log(err)
+    
+    })
 
 }
 
 
-function formatDate(dateString) {
-	if (dateString == null || dateString == "") {
-		return "N/A"
-	}
-	var d = new Date(dateString)
-	return d.toLocaleDateString()
+function formatDate(dt) {
+    //date na thakle N/A dekhabo
+    if (dt == null || dt == "") {
+        return "N/A"
+    }
+    
+    var d = new Date(dt)
+    
+    return d.toLocaleDateString()
 }
 
 
 function logOut() {
-	localStorage.removeItem("loggedIn")
-	window.location.href = "index.html"
+   
+    //localstorage clear kore login page e pathabo
+
+    localStorage.removeItem("loggedIn")
+
+    window.location.href = "index.html"
+
 }
