@@ -48,20 +48,23 @@
 
     <script>
         function doLogin() {
-            var username = document.getElementById("username").value
-            var password = document.getElementById("password").value
 
-            if (username == "admin" && password == "admin123") {
+            //input field theke value nibo
+            var u = document.getElementById("username").value
+            var p = document.getElementById("password").value
 
-    
+            //check korbo username r password thik ache kina
+            if (u == "admin" && p == "admin123") {
+
+                //localstorage e rakhi je logged in
                 localStorage.setItem("loggedIn", "true")
 
+                //dashboard e pathabo
                 window.location.href = "dashboard.html"
-            }
 
-            else {
+            } else {
+
                 document.getElementById("errorMsg").style.display = "block"
-
 
             }
         }
