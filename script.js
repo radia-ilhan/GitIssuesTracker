@@ -80,19 +80,19 @@ function displayCards(issueList) {
 
 		// description
 		var description = "No description."
-        if(issue.description){
-            description = issue.description
-        }
+		if (issue.description != null && issue.description != "") {
+			description = issue.description
+		}
 
 		// author
 		var authorName = "Unknown"
-        if(issue.author) {
-             authorName = issue.author
-            }
+		if (issue.author != null && issue.author != "") {
+			authorName = issue.author
+		}
 
 		// labels - loop through them if any
 		var labelsHTML = ""
-		if(issue.labels) {
+		if (issue.labels != null && issue.labels.length > 0) {
 			var j = 0
 			while (j < issue.labels.length) {
 				labelsHTML = labelsHTML + "<span class='label-pill'>" + issue.labels[j] + "</span> "
@@ -130,9 +130,9 @@ function displayCards(issueList) {
 		cardHTML = cardHTML + "<p class='card-description'>" + description + "</p>"
 		cardHTML = cardHTML + "<div class='mb-2'>" + labelsHTML + "</div>"
 		cardHTML = cardHTML + "<div class='mb-1'>" + statusBadge + "</div>"
-		cardHTML = cardHTML + "<p class='card-info'>📁 " + category + "</p>"
-		cardHTML = cardHTML + "<p class='card-info'>👤 " + authorName + "</p>"
-		cardHTML = cardHTML + "<p class='card-info'>📅 " + createdDate + "</p>"
+		cardHTML = cardHTML + "<p class='card-info'>" + category + "</p>"
+		cardHTML = cardHTML + "<p class='card-info'>" + authorName + "</p>"
+		cardHTML = cardHTML + "<p class='card-info'>" + createdDate + "</p>"
 		cardHTML = cardHTML + "</div>"
 		cardHTML = cardHTML + "</div>"
 
@@ -213,14 +213,18 @@ function searchIssues() {
 		return res.json()
 	})
 	.then(function(data) {
-        document.getElementById("spinner").style.display = "none"
-        var results = data.data
-        displayCards(results)
-    })
 
+		document.getElementById("spinner").style.display = "none"
 
+		var results = []
 
+		if (data.data) {
+			results = data.data
+		}
 
+		displayCards(results)
+
+	})
 	.catch(function(err) {
 		document.getElementById("spinner").style.display = "none"
 		console.log("search error", err)
@@ -249,23 +253,24 @@ function openModal(issueId) {
 		}
 
 		// labels
-		var allLabels = "None"
+		var labelsHTML = ""
 		if (issue.labels != null && issue.labels.length > 0) {
-			allLabels = ""
 			var i = 0
 			while (i < issue.labels.length) {
-				allLabels = allLabels + "<span class='label-pill'>" + issue.labels[i] + "</span> "
+				labelsHTML = labelsHTML + "<span class='label-pill modal-label-pill'>🐛 " + issue.labels[i] + "</span> "
 				i++
 			}
+		} else {
+			labelsHTML = "<span class='text-muted'>None</span>"
 		}
 
 		// status badge
 		var statusBadge = ""
 		if (issue.status == "open") {
-			statusBadge = "<span class='open-badge'>Open</span>"
+			statusBadge = "<span class='modal-open-badge'>opened</span>"
 		}
 		if (issue.status == "closed") {
-			statusBadge = "<span class='closed-badge'>Closed</span>"
+			statusBadge = "<span class='modal-closed-badge'>closed</span>"
 		}
 
 		var priority = "N/A"
@@ -283,7 +288,7 @@ function openModal(issueId) {
 			author = issue.author
 		}
 
-		var assignee = "None"
+		var assignee = "N/A"
 		if (issue.assignee != null && issue.assignee != "") {
 			assignee = issue.assignee
 		}
@@ -295,73 +300,43 @@ function openModal(issueId) {
 
 		document.getElementById("modalHeading").innerText = issue.title
 
-		// build modal content
+		// build modal content to match the design
 		var html = ""
-        html += "<p class='detail-label'>Description</p>"
-        html += "<p class='detail-value'>" + desc + "</p>"
 
-        html += "<div class='row'>"
+		// top row: status badge + opened by info
+		html = html + "<div class='modal-top-row'>"
+		html = html + statusBadge
+		html = html + "<span class='modal-opened-info'>• Opened by " + author + " • " + formatDate(issue.createdAt) + "</span>"
+		html = html + "</div>"
 
+		// labels row
+		html = html + "<div class='modal-labels-row'>"
+		html = html + labelsHTML
+		html = html + "</div>"
 
+		// description
+		html = html + "<p class='modal-desc'>" + desc + "</p>"
 
-        html += "<div class='col-md-6'>"
-        html += "<p class='detail-label'>Status</p>"
+		// bottom info box - assignee and priority side by side
+		html = html + "<div class='modal-info-box'>"
 
-        html += "<p class='detail-value'>" + statusBadge + "</p>"
+		html = html + "<div class='modal-info-item'>"
+		html = html + "<span class='modal-info-label'>Assignee:</span>"
+		html = html + "<p class='modal-info-value'>" + assignee + "</p>"
+		html = html + "</div>"
 
+		html = html + "<div class='modal-info-item'>"
+		html = html + "<span class='modal-info-label'>Priority:</span>"
+		html = html + "<p><span class='priority-pill priority-" + priority + "'>" + priority + "</span></p>"
+		html = html + "</div>"
 
-        html += "</div>"
+		html = html + "</div>"
 
-        html += "<div class='col-md-6'>"
-        html += "<p class='detail-label'>Category</p>"
-        html += "<p class='detail-value'>" + category + "</p>"
-        html += "</div>"
-
-
-        html += "<div class='col-md-6'>"
-        
-        html += "<p class='detail-label'>Author</p>"
-        html += "<p class='detail-value'>" + author + "</p>"
-
-
-        html += "</div>"
-
-        html += "<div class='col-md-6'>"
-        html += "<p class='detail-label'>Priority</p>"
-
-        html += "<p class='detail-value'>" + priority + "</p>"
-        html += "</div>"
-
-        html += "<div class='col-md-6'>"
-
-
-
-        html += "<p class='detail-label'>Labels</p>"
-        html += "<p class='detail-value'>" + allLabels + "</p>"
-        html += "</div>"
-
-        html += "<div class='col-md-6'>"
-        html += "<p class='detail-label'>Created At</p>"
-        html += "<p class='detail-value'>" + formatDate(issue.createdAt) + "</p>"
-        html += "</div>"
-
-        html += "<div class='col-md-6'>"
-        html += "<p class='detail-label'>Updated At</p>"
-
-        html += "<p class='detail-value'>" + formatDate(issue.updatedAt) + "</p>"
-
-        html += "</div>"
-
-        html += "<div class='col-md-6'>"
-
-        
-        html += "<p class='detail-label'>Assignee</p>"
-        html += "<p class='detail-value'>" + assignee + "</p>"
-        
-        html += "</div>"
-        
-        
-        html += "</div>"
+		// extra info below box
+		html = html + "<div class='modal-extra-info'>"
+		html = html + "<span>📁 " + category + "</span>"
+		html = html + "<span>Updated: " + formatDate(issue.updatedAt) + "</span>"
+		html = html + "</div>"
 
 		document.getElementById("modalContent").innerHTML = html
 
@@ -379,7 +354,7 @@ function formatDate(dateString) {
 		return "N/A"
 	}
 	var d = new Date(dateString)
-	return d.toDateString()
+	return d.toLocaleDateString()
 }
 
 
