@@ -2,27 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Dashboard</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="style.css">
 
-    <!-- auth check goes here in head - runs before page even renders -->
     <script>
+
+
+
+        
+        //login na korle index e pathabo
         if (localStorage.getItem("loggedIn") != "true") {
+
             window.location.href = "index.html"
         }
     </script>
 </head>
 <body>
 
-    <!-- navbar -->
+    
     <nav class="navbar navbar-dark" style="background-color: #24292e;">
+
         <div class="container-fluid">
-            <span class="navbar-brand">🐙 GitHub Issues Tracker</span>
+            
 
             <div class="d-flex gap-2">
                 <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search issues...">
+
+
                 <button class="btn btn-sm btn-outline-light" onclick="searchIssues()">Search</button>
                 <button class="btn btn-sm btn-danger" onclick="logOut()">Logout</button>
             </div>
@@ -31,19 +42,26 @@
 
     <div class="container mt-4">
 
-        <!-- tab buttons and counts -->
+    
         <div class="tab-section mb-4">
+
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
 
                 <div>
                     <button class="btn btn-success me-1" id="btnAll" onclick="showTab('all')">
                         All (<span id="countAll">0</span>)
+
                     </button>
+
                     <button class="btn btn-outline-success me-1" id="btnOpen" onclick="showTab('open')">
+
                         Open (<span id="countOpen">0</span>)
+
                     </button>
+
                     <button class="btn btn-outline-secondary" id="btnClosed" onclick="showTab('closed')">
                         Closed (<span id="countClosed">0</span>)
+
                     </button>
                 </div>
 
@@ -55,13 +73,16 @@
             </div>
         </div>
 
-        <!-- spinner shown while loading -->
+        
         <div id="spinner" class="text-center py-5">
             <div class="spinner-border text-success"></div>
+
             <p class="mt-2 text-muted">Loading issues please wait...</p>
+
+            
         </div>
 
-        <!-- all cards go inside this row -->
+        
         <div class="row" id="cardsContainer">
 
         </div>
@@ -69,13 +90,16 @@
     </div>
 
 
-    <!-- Issue detail modal -->
+    
     <div class="modal fade" id="detailModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
+
                     <h5 class="modal-title" id="modalHeading">Issue</h5>
+
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                
                 </div>
                 <div class="modal-body" id="modalContent">
 
