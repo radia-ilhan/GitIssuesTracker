@@ -80,19 +80,19 @@ function displayCards(issueList) {
 
 		// description
 		var description = "No description."
-		if (issue.description != null && issue.description != "") {
+		if (issue.description) {
 			description = issue.description
 		}
 
 		// author
 		var authorName = "Unknown"
-		if (issue.author != null && issue.author != "") {
+		if(issue.author) {
 			authorName = issue.author
 		}
 
 		// labels - loop through them if any
 		var labelsHTML = ""
-		if (issue.labels != null && issue.labels.length > 0) {
+		if (issue.labels) {
 			var j = 0
 			while (j < issue.labels.length) {
 				labelsHTML = labelsHTML + "<span class='label-pill'>" + issue.labels[j] + "</span> "
@@ -104,7 +104,7 @@ function displayCards(issueList) {
 
 		// priority badge
 		var priorityHTML = ""
-		if (issue.priority != null && issue.priority != "") {
+		if (issue.priority) {
 			priorityHTML = "<span class='priority-pill priority-" + issue.priority + "'>" + issue.priority + "</span>"
 		}
 
@@ -112,7 +112,7 @@ function displayCards(issueList) {
 
 		// category
 		var category = "General"
-		if (issue.category != null && issue.category != "") {
+		if (issue.category) {
 			category = issue.category
 		}
 
