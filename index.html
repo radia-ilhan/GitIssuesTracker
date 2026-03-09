@@ -12,38 +12,44 @@
     <div class="login-box">
 
         <div class="text-center mb-3">
-            <h2>🐙</h2>
+            <img src="logo.jpg" class="login-logo" alt="" onerror="this.style.display='none'">
         </div>
 
-        <h4 class="text-center">GitHub Issues Tracker</h4>
-        <p class="text-center text-muted">Sign in to continue</p>
+        <h3 class="text-center login-title">GitHub Issues Tracker</h3>
+        <p class="text-center login-subtitle">Sign in to manage your issues</p>
 
         <div class="mb-3">
-            <label class="form-label">Username</label>
-            <input type="text" class="form-control" id="username" placeholder="Enter your username">
+            <label class="login-label">Username</label>
+            <input type="text" class="form-control login-input" id="username" placeholder="Username">
+            <small class="default-hint">Default: admin</small>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" placeholder="Enter your password">
+            <label class="login-label">Password</label>
+            <input type="password" class="form-control login-input" id="password" placeholder="Password">
+            <small class="default-hint">Default: admin123</small>
         </div>
 
-        <button class="btn btn-success w-100" onclick="doLogin()">Sign In</button>
+        <button class="btn login-btn w-100 mt-2" onclick="doLogin()">Sign In</button>
 
         <p class="text-danger mt-2" id="errorMsg" style="display:none;">Wrong username or password!</p>
 
-        <div class="demo-box mt-3">
-            <small><strong>Demo Credentials:</strong></small><br>
-            <small>Username: admin</small><br>
-            <small>Password: admin123</small>
+        <div class="or-divider">
+            <span>OR</span>
+        </div>
+
+        <div class="demo-box mt-2">
+            <p class="demo-title">Demo Credentials</p>
+            <p class="demo-info">Username: admin</p>
+            <p class="demo-info">Password: admin123</p>
         </div>
 
     </div>
 
     <script>
         function doLogin() {
-            let username = document.getElementById("username").value
-            let password = document.getElementById("password").value
+            var username = document.getElementById("username").value
+            var password = document.getElementById("password").value
 
             if (username == "admin" && password == "admin123") {
                 localStorage.setItem("loggedIn", "true")
